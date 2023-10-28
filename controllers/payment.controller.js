@@ -3,8 +3,10 @@ import Payment from '../models/payment.model.js'
 import { razorpay } from '../server.js'
 import AppError from '../utils/error.util.js'
 import crypto from 'crypto'
+import { log } from 'console'
+
 const getRazorpayApiKey = (req, res, next) => {
-    try {
+    try { 
         res.status(200).json({
             success: true,
             message: "Razorpay api key",
@@ -18,7 +20,7 @@ const buySubscription = async (req, res, next) => {
     try {
         const { id } = req.user
     
-        const user = await User.findById({ id })
+        const user = await User.findById(id)
     
         if (!user) {
             return next(new AppError("Unauthorize, please login", 400))
@@ -28,15 +30,19 @@ const buySubscription = async (req, res, next) => {
             return next(new AppError("Admin cannot purchase subscription", 400))
         }
     
-        const subscription = await razorpay.subscription.create({
+        const subscription = await razorpay.subscriptions.create({
             plan_id: process.env.RAZORPAY_PLAN_ID,
-            customer_notify: 1
+            customer_notify: 1,
+            total_count: 6,
+            quantity: 1,
         })
     
         user.subscription.id = subscription.id
         user.subscription.status = subscription.status
     
         await user.save()
+
+        console.log(subscription.status);
     
         res.status(200).json({
             success: true,
@@ -53,16 +59,14 @@ const verifySubscription = async (req, res, next) => {
     
         const { razorpay_payment_id, razorpay_signature, razorpay_subscription_id } = req.body
     
-        const user = await User.findById({ id })
+        const user = await User.findById(id)
     
         if (!user) {
             return next(new AppError("Unauthorize, please login", 400))
         }
-    
-        const subscriptionId = user.subscription.id;
-    
+        
         const generatedSignature = crypto
-            .createHash('sha256', process.env.RAZORPAY_SECRET).update(`${razorpay_payment_id} | ${subscriptionId}`)
+            .createHmac('sha256', process.env.RAZORPAY_SECRET).update(`${razorpay_payment_id}|${razorpay_subscription_id}`)
             .digest('hex')
     
         if (generatedSignature !== razorpay_signature) {
@@ -76,8 +80,9 @@ const verifySubscription = async (req, res, next) => {
         })
     
         user.subscription.status = 'active'
-    
-        await user.save();
+        console.log(user);
+        const u = await user.save();
+        console.log(u);
     
         res.status(200).json({
             success: true,
@@ -91,7 +96,7 @@ const cancelSubscription = async (req, res, next) => {
     try {
         const { id } = req.user
     
-        const user = await User.findById({ id })
+        const user = await User.findById(id)
     
         if (!user) {
             return next(new AppError("Unauthorize, please login", 400))
@@ -102,14 +107,22 @@ const cancelSubscription = async (req, res, next) => {
         }
     
         const subscriptionId = user.subscription.id
-    
-        const subscription = await razorpay.subscriptions.cancel({
-            subscriptionId
-        })
-    
-        user.subscription.status = subscription.status
-    
-        await user.save()   
+                // Attempt to cancel the subscription
+                let subscription;
+                try {
+                    subscription = razorpay.subscriptions.cancel({
+                        subscriptionId
+                    });
+        
+                    user.subscription.status = subscription.status;
+                    await user.save();
+        
+                    // Respond with a success message or status code
+                    return res.status(200).json({ message: 'Subscription canceled successfully' });
+                } catch (e) {
+                    // Handle errors from Razorpay or other issues
+                    return next(new AppError(`Failed to cancel subscription: ${e.message}`, 500));
+                }
     } catch (e) {
         return next(new AppError(e.message, 500))
     }

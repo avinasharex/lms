@@ -2,6 +2,7 @@ import Course from "../models/course.model.js"
 import cloudinary from 'cloudinary'
 import AppError from "../utils/error.util.js"
 import fs from 'fs/promises'
+import { log } from "console"
 
 const createCourse = async (req,res, next)=>{
     const {title, description, category, createdBy} = req.body
@@ -45,6 +46,7 @@ const createCourse = async (req,res, next)=>{
                 // Remove file from server
                 fs.rm('uploads/' + req.file.filename)
             } catch (e) {
+                console.log('Cousre' + e);
                 return next(new AppError(e.message, 500))  
     
             }
@@ -57,6 +59,7 @@ const createCourse = async (req,res, next)=>{
             message: "Course created successfully"
         })
     } catch (e) {
+        console.log("Entire" + e);
         return next(new AppError(e.message, 500))  
     }
 

@@ -232,7 +232,7 @@ const changePassword = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
     const { fullName } = req.body
-    const { id } = req.user.id
+    const { id } = req.params
 
     const user = await User.findById(id)
 
@@ -240,10 +240,10 @@ const updateUser = async (req, res, next) => {
         return next(new AppError("User does not exist", 400))
     }
 
-    if (req.fullName) {
+    if (fullName) {
         user.fullName = fullName
     }
-
+    
     if (req.file) {
         await cloudinary.v2.uploader.destroy(user.avatar.public_id)
         try {
@@ -258,18 +258,18 @@ const updateUser = async (req, res, next) => {
             if (result) {
                 user.avatar.public_id = result.public_id,
                     user.avatar.secure_url = result.secure_url
-            }
-
-            // Remove file from server
+                }
+                
+                // Remove file from server
             fs.rm('uploads/' + req.file.filename)
         } catch (e) {
             return next(new AppError(e.message, 500))
-
+            
         }
     }
-
+    
     await user.save()
-
+    
     res.status(200).json({
         success: true,
         message: "User detail updated successfully"

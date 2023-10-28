@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { allPayments, buySubscription, cancelSubscription, getRazorpayApiKey, verifySubscription } from "../controllers/payment.controller.js"
-import { authorizedRoles, isLoggedIn } from "../middleware/auth.middleware.js"
+import { authorizeSubscriber, authorizedRoles, isLoggedIn } from "../middleware/auth.middleware.js"
 
 const router = Router()
 
@@ -20,7 +20,8 @@ router.route('/verify')
     )
 
 router.route('/unsubscribe')
-    .post(isLoggedIn,
+    .get(isLoggedIn,
+        authorizeSubscriber,
         cancelSubscription
     )
 
