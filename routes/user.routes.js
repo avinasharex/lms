@@ -3,13 +3,12 @@ import { changePassword, deleteUser, forgotPassword, getProfile, login, logout, 
 import { isLoggedIn } from "../middleware/auth.middleware.js"
 import upload from "../middleware/multer.middleware.js"
 import { contactus } from "../controllers/contactus.controller.js"
-import { setHeader } from "../middleware/header.middleware.js"
 
 
 const router = Router()
 
-router.post("/register",setHeader, upload.single("avatar"), register)
-router.post("/login",setHeader, login)
+router.post("/register", upload.single("avatar"), register)
+router.post("/login", login)
 router.get("/logout", logout)
 router.get("/me", isLoggedIn, getProfile)
 router.delete("/delete", isLoggedIn, deleteUser)
