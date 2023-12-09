@@ -16,11 +16,7 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }))
 
-app.use(cors({
-    origin: "https://lms-frontend-flax.vercel.app",
-    credentials: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE'
-}))
+app.use(cors())
 
 
 app.use(morgan("dev"))
