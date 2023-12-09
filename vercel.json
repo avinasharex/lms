@@ -14,7 +14,7 @@
     ],
       "headers": [
         {
-          "source": "/api/v1/(.*)",
+          "source": "https://lms-server-xpxl.vercel.app/api/v1(.*)",
           "headers": [
             { "key": "Access-Control-Allow-Credentials", "value": "true" },
             { "key": "Access-Control-Allow-Origin", "value": "http://localhost:5173/" },
