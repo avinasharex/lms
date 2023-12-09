@@ -15,7 +15,16 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }))
-
+app.use((req, res, next) => {
+    // Allow all origins (you might want to restrict this in a production environment)
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  
+    // Continue to the next middleware or route handler
+    next();
+  });
 
 
 app.use(morgan("dev"))
