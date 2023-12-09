@@ -17,7 +17,7 @@ app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }))
 
 app.use(cors({
-    origin: "https://lms-frontend-flax.vercel.app",
+    origin: "https://lms-frontend-flax.vercel.app/",
     credentials: true
 }))
 
