@@ -19,6 +19,6 @@ export const razorpay = new Razorpay({
 })
 
 app.listen(PORT,async()=>{
-    await connectionToDB()
+    connectionToDB()
     console.log(`App is running at https://lms-server-xpxl.vercel.app`);
 })
