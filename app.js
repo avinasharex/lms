@@ -18,7 +18,8 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use(cors({
     origin: "https://lms-frontend-flax.vercel.app",
-    credentials: true
+    credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE'
 }))
 
 
